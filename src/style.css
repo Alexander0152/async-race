@@ -1,0 +1,72 @@
+body {
+  background-color: rgba(128, 128, 128, 0.322);
+  text-align: center;
+}
+
+main {
+  display: block;
+}
+
+/* .form-content {
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+} */
+
+.form-field {
+  /* display: flex; */
+  margin: 10px;
+  align-items: center;
+}
+
+.car_input {
+  margin-right: 20px;
+}
+
+button {
+  margin: 10px;
+}
+
+input {
+  border-radius: 8px;
+}
+
+.title {
+  margin-left: 30px;
+  font-size: 22px;
+}
+
+.race {
+  width: 100%;
+  height: 100px;
+  float: left;
+  border-bottom: solid black;
+  text-align: left;
+  position: relative;
+}
+
+.car-panel {
+  display: flex;
+}
+
+.car-image {
+  width: 135px;
+  height: 56px;
+  /* transform: translateX(20px); */
+}
+
+.race-btn {
+  width: 35px;
+  height: 35px;
+  transform: translateY(-30px);
+}
+
+.finish {
+  width: 30px;
+  height: 30px;
+  background-image: url('assets/images/finish.svg');
+  background-size: cover;
+  float: right;
+  margin-right: 150px;
+  margin-top: 15px;
+}
