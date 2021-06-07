@@ -1,14 +1,10 @@
-// import UserDao from '../dataAccessLayer/userDao';
-// import User from '../businessLayer/user';
+import CarDao from '../dataAccessLayer/carDao';
 
-// export default class UserService {
-//   public static addUser(dbName: string, dbVersion: number, user: User): void {
-//     const userDao: UserDao = new UserDao(dbName, dbVersion);
-//     userDao.addUser(user);
-//   }
-
-//   public static getAllUsers(dbName: string, dbVersion: number): User[] {
-//     const userDao: UserDao = new UserDao(dbName, dbVersion);
-//     return userDao.getAllUsers();
-//   }
-// }
+export default class CarService {
+  public static async getCars(
+    page: number,
+    limit: number = 7,
+  ): Promise<{ items: [{ name: string; color: string; id: number }]; count: string }> {
+    return CarDao.getCars(page, limit);
+  }
+}

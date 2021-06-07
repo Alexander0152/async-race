@@ -36,6 +36,7 @@ export default class Garage {
       </div>
     </form>
     <p class="title">Garage ()</p>
+    <p class="title">Page #</p>
     <div id="garagePage"></div>
   </main>`;
     if (this.root) {

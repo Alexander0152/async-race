@@ -1,18 +1,27 @@
 export default class Race {
   private readonly application: HTMLDivElement;
 
-  constructor(private readonly root: Element) {
+  private name: string;
+
+  private color: string;
+
+  private id: number;
+
+  constructor(private readonly root: Element, car: { name: string; color: string; id: number }) {
     this.application = document.createElement('div');
+    this.name = car.name;
+    this.color = car.color;
+    this.id = car.id;
   }
 
   render(): HTMLElement {
     this.application.innerHTML = `<div class="race">
     <div class="car-panel">
-      <button class="btn_add_user">SELECT</button>
-      <button class="btn_add_user">REMOVE</button>
-      <p>title</p>
+      <button class="btn_add_user" id="select-car-${this.id}">SELECT</button>
+      <button class="btn_add_user" id="remove-car-${this.id}">REMOVE</button>
+      <p>${this.name}</p>
     </div>
-    <button class="race-btn">A</button>
+    <button class="race-btn">A</button>  
     <button class="race-btn">B</button>
     <svg
       class="car-image"
@@ -26,7 +35,7 @@ export default class Race {
       <metadata>Created by potrace 1.15, written by Peter Selinger 2001-2017</metadata>
       <g
         transform="translate(0.000000,640.000000) scale(0.100000,-0.100000)"
-        fill="#fefefe"
+        fill=${this.color}
         stroke="none"
       >
         <path
