@@ -1,3 +1,5 @@
+import Car from '../businessLayer/car';
+
 const base = 'http://localhost:3000';
 
 const garage = `${base}/garage`;
@@ -12,20 +14,31 @@ export default class CarDao {
   public static async getCars(
     page: number,
     limit: number = 7,
-  ): Promise<{ items: [{ name: string; color: string; id: number }]; count: string }> {
+  ): Promise<{ cars: Car[]; count: string }> {
     const response = await fetch(`${garage}?_page=${page}&_limit=${limit}`);
 
+    const serverCars = await response.json();
+    const cars: Car[] = [];
+
+    serverCars.forEach((el: { name: string; color: string; id: number }) => {
+      const newCar: Car = new Car(el.name, el.color, el.id);
+      cars.push(newCar);
+    });
+
     return {
-      items: await response.json(),
+      cars,
       count: response.headers.get('X-Total-Count'),
     };
   }
 
-  public static async getCar(id: number) {
+  public static async getCar(id: number): Promise<{ name: string; color: string; id: number }> {
     return (await fetch(`${garage}/${id}`)).json();
   }
 
-  public static async createCar(body: Body) {
+  public static async createCar(body: {
+    name: string;
+    color: string;
+  }): Promise<{ name: string; color: string; id: number }> {
     return (
       await fetch(garage, {
         method: 'POST',
@@ -37,11 +50,17 @@ export default class CarDao {
     ).json();
   }
 
-  public static async deleteCar(id: number) {
+  public static async deleteCar(id: number): Promise<{}> {
     return (await fetch(`${garage}/${id}`, { method: 'DELETE' })).json();
   }
 
-  public static async updateCar(id: number, body: Body) {
+  public static async updateCar(
+    id: number,
+    body: {
+      name: string;
+      color: string;
+    },
+  ): Promise<{ name: string; color: string; id: number }> {
     return (
       await fetch(`${garage}/${id}`, {
         method: 'PUT',

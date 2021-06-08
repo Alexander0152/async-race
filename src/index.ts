@@ -1,26 +1,38 @@
+import Car from './businessLayer/car';
 import CarDao from './dataAccessLayer/carDao';
 import Garage from './presentationLayer/garage';
 import Race from './presentationLayer/race';
+import Store from './presentationLayer/Store';
 import CarService from './serviceLayer/carService';
 
 const rootNode = document.querySelector('body');
-new Garage(rootNode).render();
+const store = new Store();
+store.initialize().then(() => {
+  new Garage(rootNode, store).render();
+});
 
-const garagePage = document.querySelector('#garagePage');
+const car = new Car('rest', 'red', 20);
+console.log(car);
+rootNode.appendChild(car.render());
+car.changeImageColor('black');
+// car.image.style.fillRule = 'blue';
+console.log(car);
+// const el = document.createElement('div');
+// el.innerHTML = `<button>TEST</button>`;
+// el.style.backgroundColor = store.color;
+// rootNode.appendChild(el);
+// store.color = 'green';
+// el.addEventListener('click', () => alert(`${el}`));
+
 // new Race(garagePage).render();
 
-const c = CarDao.getCars(1).then();
-function sayHi() {
-  console.log();
-}
+// const c = CarDao.getCars(1).then();
+// const c = new Store();
+// async function sayHi() {
+//   new Garage(rootNode, new Store()).render();
+// }
 
-setTimeout(sayHi, 1000);
-// const d = `${c}`;
-// console.log(
-//   CarDao.createWinner({
-//     id: 12,
-//     wins: 2,
-//     time: 34.4,
-//   }),
-// );
+// setTimeout(sayHi, 3000);
+
+// console.log(CarDao.deleteCar(5));
 // console.log(CarDao.getWinners(1, 7, 'id', 'ASC'));

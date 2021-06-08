@@ -1,14 +1,22 @@
+import Store from './Store';
+
 export default class Garage {
   private readonly application: HTMLDivElement;
 
-  constructor(private readonly root: Element) {
+  private btnToGarage: HTMLButtonElement;
+
+  private btnToWinners: HTMLButtonElement;
+
+  private btnPrev: HTMLButtonElement;
+
+  private btnNext: HTMLButtonElement;
+
+  constructor(private readonly root: Element, private store: Store) {
     this.application = document.createElement('div');
   }
 
   render(): HTMLElement {
     this.application.innerHTML = `<main>
-    <button id="btnToGarage" class="btn_add_user">TO GARAGE</button>
-    <button id="btnToWinners" class="btn_cansel">TO WINNERS</button>
 
     <form id="regForm" class="car_form">
       <p class="title">Car</p>
@@ -35,13 +43,40 @@ export default class Garage {
         <button class="btn_add_user">GENERATE CARS</button>
       </div>
     </form>
-    <p class="title">Garage ()</p>
-    <p class="title">Page #</p>
+    <p class="title">Garage (${this.store.carsCount})</p>
+    <p class="title">Page #${this.store.carsPage}</p>
     <div id="garagePage"></div>
   </main>`;
+
+    this.btnToGarage = document.createElement('button');
+    this.btnToGarage.innerHTML = `TO GARAGE`;
+    this.btnToGarage.disabled = true;
+
+    this.btnToWinners = document.createElement('button');
+    this.btnToWinners.innerHTML = `TO WINNERS`;
+
+    this.btnPrev = document.createElement('button');
+    this.btnPrev.innerHTML = `PREV`;
+    this.btnPrev.disabled = true;
+
+    this.btnNext = document.createElement('button');
+    this.btnNext.innerHTML = `Next`;
+
     if (this.root) {
+      this.root.appendChild(this.btnToGarage);
+      this.root.appendChild(this.btnToWinners);
       this.root.appendChild(this.application);
+      this.root.appendChild(this.btnPrev);
+      this.root.appendChild(this.btnNext);
     }
+
+    this.addButtonListeners();
+    console.log(this.store);
     return this.application;
+  }
+
+  addButtonListeners() {
+    this.btnToGarage.addEventListener('click', () => alert());
+    this.btnToWinners.addEventListener('click', () => alert());
   }
 }
