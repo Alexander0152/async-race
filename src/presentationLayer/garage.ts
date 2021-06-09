@@ -1,3 +1,4 @@
+import Race from './race';
 import Store from './Store';
 
 export default class Garage {
@@ -66,17 +67,21 @@ export default class Garage {
       this.root.appendChild(this.btnToGarage);
       this.root.appendChild(this.btnToWinners);
       this.root.appendChild(this.application);
+      this.renderCarsPage();
       this.root.appendChild(this.btnPrev);
       this.root.appendChild(this.btnNext);
     }
 
     this.addButtonListeners();
-    console.log(this.store);
     return this.application;
   }
 
   addButtonListeners() {
     this.btnToGarage.addEventListener('click', () => alert());
     this.btnToWinners.addEventListener('click', () => alert());
+  }
+
+  renderCarsPage() {
+    this.store.cars.forEach((el) => new Race(this.root, el).render());
   }
 }

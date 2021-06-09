@@ -58,11 +58,13 @@ export default class Car {
   }
 
   changeImageColor(newColor: string) {
+    this.color = newColor;
     this.image.getElementsByTagName('g')[0].style.fill = newColor;
   }
 
   render(): HTMLDivElement {
     const carImage = document.createElement('div');
+    carImage.classList.add(`car-image`);
     this.image = carImage;
     this.image.innerHTML = `<svg
       class="car-image"

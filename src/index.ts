@@ -11,12 +11,10 @@ store.initialize().then(() => {
   new Garage(rootNode, store).render();
 });
 
-const car = new Car('rest', 'red', 20);
-console.log(car);
-rootNode.appendChild(car.render());
-car.changeImageColor('black');
+// rootNode.appendChild(car.render());
+// car.changeImageColor('black');
 // car.image.style.fillRule = 'blue';
-console.log(car);
+// console.log(car);
 // const el = document.createElement('div');
 // el.innerHTML = `<button>TEST</button>`;
 // el.style.backgroundColor = store.color;
