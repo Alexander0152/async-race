@@ -1,4 +1,8 @@
 import Car from '../businessLayer/car';
+import CarService from '../serviceLayer/carService';
+// eslint-disable-next-line import/no-cycle
+import Garage from './garage';
+import Store from './Store';
 
 export default class Race {
   private readonly application: HTMLDivElement;
@@ -11,7 +15,7 @@ export default class Race {
 
   private btnB: HTMLButtonElement;
 
-  constructor(private readonly root: Element, private car: Car) {
+  constructor(private readonly root: Element, private car: Car, private readonly store: Store) {
     this.application = document.createElement('div');
     this.btnSelect = document.createElement('button');
     this.btnRemove = document.createElement('button');
@@ -44,8 +48,27 @@ export default class Race {
 
     if (this.root) {
       this.root.appendChild(this.application);
+      this.addBtnListeners();
     }
 
     return this.application;
+  }
+
+  addBtnListeners() {
+    this.btnSelect.addEventListener('click', () => {
+      this.store.selectedCar = this.car;
+    });
+
+    this.btnRemove.addEventListener('click', () => {
+      const position = this.store.cars.indexOf(this.car);
+      this.store.cars.splice(position, 1);
+      this.store.carsCount = (+this.store.carsCount - 1).toString();
+
+      this.store.root.innerHTML = '';
+      const garage = new Garage(this.store.root, this.store);
+      garage.render();
+
+      CarService.deleteCar(this.car.id);
+    });
   }
 }

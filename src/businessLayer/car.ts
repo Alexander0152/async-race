@@ -9,7 +9,7 @@ export default class Car {
 
   private currentWinsNumber: number = 0;
 
-  private image: HTMLDivElement;
+  public image: HTMLDivElement;
 
   constructor(newName: string, newColor: string, newId: number) {
     this.currentName = newName;
@@ -60,6 +60,23 @@ export default class Car {
   changeImageColor(newColor: string) {
     this.color = newColor;
     this.image.getElementsByTagName('g')[0].style.fill = newColor;
+  }
+
+  animate() {
+    const { image } = this;
+    let start: number = null;
+    const state: { id: number } = { id: null };
+
+    function step(timestamp: number) {
+      if (!start) start = timestamp;
+      const progress = timestamp - start;
+      image.style.transform = `translateX(${Math.min(progress / 10, 1000)}px)`;
+      if (progress < 10000) {
+        state.id = window.requestAnimationFrame(step);
+      }
+    }
+    state.id = window.requestAnimationFrame(step);
+    return state;
   }
 
   render(): HTMLDivElement {

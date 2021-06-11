@@ -20,9 +20,11 @@ export default class Store {
 
   public winners: { id: string; wins: string; time: number }[];
 
-  //   constructor() {
-  //     this.initialize();
-  //   }
+  public selectedCar: Car;
+
+  public root: HTMLElement;
+
+  public view: string = 'garage';
 
   async initialize() {
     this.cars = await (await CarService.getCars(1)).cars;
