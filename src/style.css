@@ -67,6 +67,7 @@ input {
   background-image: url('assets/images/finish.svg');
   background-size: cover;
   float: right;
-  margin-right: 150px;
+  margin-right: 20%;
+  /* margin-right: 150px; */
   margin-top: -40px;
 }

@@ -15,7 +15,12 @@ export default class Race {
 
   private btnB: HTMLButtonElement;
 
-  constructor(private readonly root: Element, private car: Car, private readonly store: Store) {
+  constructor(
+    private readonly root: Element,
+    private car: Car,
+    private readonly store: Store,
+    private garage: Garage,
+  ) {
     this.application = document.createElement('div');
     this.btnSelect = document.createElement('button');
     this.btnRemove = document.createElement('button');
@@ -60,15 +65,37 @@ export default class Race {
     });
 
     this.btnRemove.addEventListener('click', () => {
-      const position = this.store.cars.indexOf(this.car);
-      this.store.cars.splice(position, 1);
-      this.store.carsCount = (+this.store.carsCount - 1).toString();
+      this.store.carsCount -= 1;
+      CarService.deleteCar(this.car.id).then(() =>
+        this.store.updateStoreCars().then(() => {
+          this.store.root.innerHTML = '';
+          this.garage.render();
+        }),
+      );
+    });
 
-      this.store.root.innerHTML = '';
-      const garage = new Garage(this.store.root, this.store);
-      garage.render();
+    this.btnA.addEventListener('click', () => {
+      // const startEngineRes: {
+      //   velocity: number;
+      //   distance: number;
+      // } = await CarService.startEngine(this.car.id);
 
-      CarService.deleteCar(this.car.id);
+      // const { velocity } = startEngineRes;
+      // const { distance } = startEngineRes;
+      // const time: number = distance / velocity;
+
+      // if (time) {
+      //   this.car.status = 'started';
+      // } else return;
+
+      // const driveRes: { success: boolean } = await CarService.drive(this.car.id);
+
+      // if (driveRes.success === true) {
+      //   this.car.status = 'drive';
+      // } else return;
+
+      this.car.animate(2000, 1450);
+      // console.log(time);
     });
   }
 }

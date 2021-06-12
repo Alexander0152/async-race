@@ -1,9 +1,9 @@
-// eslint-disable-next-line import/no-cycle
 import Car from '../businessLayer/car';
-import CarDao from '../dataAccessLayer/carDao';
 import CarService from '../serviceLayer/carService';
+/* eslint-disable import/no-cycle */
 import Race from './race';
 import Store from './Store';
+import settings from '../businessLayer/settings';
 
 export default class Garage {
   private readonly application: HTMLDivElement;
@@ -30,6 +30,8 @@ export default class Garage {
 
   private updateCarInputColor: HTMLInputElement;
 
+  private btnGeneratecars: HTMLBRElement;
+
   constructor(private readonly root: Element, private store: Store) {
     this.application = document.createElement('div');
   }
@@ -41,19 +43,15 @@ export default class Garage {
     <button  ${
       this.store.view === 'winners' ? 'disabled' : ''
     } id="btn_to_winners">TO WINNERS</button>
-    <form id="regForm" class="car_form">
+    <form id="create_car_form" class="car_form" onsubmit="return false">
       <p class="title">Car</p>
       <div class="form-field">
-        <input
-          type="text"
-          class="car_input"
-          id="create_car_input" 
-          name="firstName"
-          placeholder="CAR NAME"
-        />
+        <input class="car_input" type="text" id="create_car_input" placeholder="CAR NAME" />
         <input type="color" id="create_car_color_input" />
         <button class="btn_add_user" id="btn_create_car">CREATE</button>
       </div>
+    </form>
+    <form id="update_car_form" class="car_form" onsubmit="return false">
       <div class="form-field">
         <input class="car_input" type="text" id="update_car_input" placeholder="CAR NAME" />
         <input type="color" id="update_car_color_input" />
@@ -62,14 +60,16 @@ export default class Garage {
       <div class="car_input">
         <button class="btn_add_user">RACE</button>
         <button class="btn_add_user">RESET</button>
-        <button class="btn_add_user">GENERATE CARS</button>
+        <button class="btn_add_user" id="btn_generate_cars">GENERATE CARS</button>
       </div>
     </form>
     <p class="title">Garage (${this.store.carsCount})</p>
     <p class="title">Page #${this.store.carsPage}</p>
     <div id="garagePage"></div>
-    <button id="btn_prev">PREV</button>
-    <button id="btn_next">NEXT</button>
+    <button ${this.store.carsPage <= 1 ? 'disabled' : ''} id="btn_prev">PREV</button>
+    <button ${
+      this.store.carsPage === Math.ceil(this.store.carsCount / 7) ? 'disabled' : ''
+    } id="btn_next">NEXT</button>
   </main>`;
 
     if (this.root) {
@@ -80,7 +80,7 @@ export default class Garage {
       this.btnToWinners = this.application.querySelector('#btn_to_winners');
 
       this.btnPrev = this.application.querySelector('#btn_prev');
-      this.btnNext = this.application.querySelector('#btn_prev');
+      this.btnNext = this.application.querySelector('#btn_next');
 
       this.btnCreateCar = this.application.querySelector('#btn_create_car');
       this.btnUpdateCar = this.application.querySelector('#btn_update_car');
@@ -90,6 +90,7 @@ export default class Garage {
 
       this.createCarInputColor = this.application.querySelector('#create_car_color_input');
       this.updateCarInputColor = this.application.querySelector('#update_car_color_input');
+      this.btnGeneratecars = this.application.querySelector('#btn_generate_cars');
 
       this.addButtonListeners();
     }
@@ -98,14 +99,37 @@ export default class Garage {
 
   addButtonListeners(): void {
     this.btnToGarage.addEventListener('click', () => alert());
-    this.btnToWinners.addEventListener('click', () => alert());
+    this.btnToWinners.addEventListener('click', async () =>
+      console.log(await CarService.startEngine(5).then()),
+    );
+
     this.btnCreateCar.addEventListener('click', () => this.createCar());
     this.btnUpdateCar.addEventListener('click', () => this.updateCar());
+
+    this.btnPrev.addEventListener('click', () => {
+      this.store.carsPage -= 1;
+      this.store.updateStoreCars().then(() => this.updateView());
+    });
+
+    this.btnNext.addEventListener('click', () => {
+      this.store.carsPage += 1;
+      this.store.updateStoreCars().then(() => this.updateView());
+    });
+
+    this.btnGeneratecars.addEventListener('click', () => {
+      this.store.carsCount += settings.generateCarsNumber;
+      CarService.generateRandomCars().then(() =>
+        this.store.updateStoreCars().then(() => this.updateView()),
+      );
+    });
   }
 
-  renderRacePage(): void {
+  async renderRacePage(): Promise<void> {
     this.racePage = document.createElement('div');
-    this.store.cars.forEach((el) => new Race(this.racePage, el, this.store).render());
+    const { cars } = this.store;
+    // const cars: Car[] = await (await CarService.getCars(this.store.carsPage)).cars;
+
+    cars.forEach((el) => new Race(this.racePage, el, this.store, this).render());
     this.root.appendChild(this.racePage);
   }
 
@@ -117,25 +141,30 @@ export default class Garage {
   }
 
   updateCar(): void {
-    const car = this.store.selectedCar;
+    const car: Car = this.store.selectedCar;
     if (!car) {
       this.updateCarInputName.setCustomValidity('No cars selected!');
       return;
     }
     car.name = this.updateCarInputName.value;
     car.color = this.updateCarInputColor.value;
-    this.updateView();
-
-    CarService.updateCar(car.id, { name: car.name, color: car.color });
+    CarService.updateCar(car.id, { name: car.name, color: car.color }).then(() =>
+      this.store.updateStoreCars().then(() => this.updateView()),
+    );
   }
 
-  createCar() {
-    alert();
-    // const newName = this.createCarInputName.value;
-    // const newColor = this.createCarInputColor.value;
-    // console.log(newName, newColor);
-    // const car = await CarDao.createCar({ name: newName, color: newColor });
-    // console.log(car);
-    // this.updateView();
+  async createCar() {
+    const newName: string = this.createCarInputName.value;
+    const newColor: string = this.createCarInputColor.value;
+    if (newName === '') {
+      this.createCarInputName.setCustomValidity('Name should be fullfilled!');
+      return;
+    }
+    this.createCarInputName.setCustomValidity('');
+
+    const newCar: Car = await CarService.createCar({ name: newName, color: newColor });
+    this.store.cars.push(newCar);
+    this.store.carsCount += 1;
+    this.updateView();
   }
 }

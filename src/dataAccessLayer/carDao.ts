@@ -15,9 +15,8 @@ export default class CarDao {
     page: number,
     limit: number = 7,
   ): Promise<{ cars: Car[]; count: string }> {
-    const response = await fetch(`${garage}?_page=${page}&_limit=${limit}`);
-
-    const serverCars = await response.json();
+    const response: Response = await fetch(`${garage}?_page=${page}&_limit=${limit}`);
+    const serverCars: { name: string; color: string; id: number }[] = await response.json();
     const cars: Car[] = [];
 
     serverCars.forEach((el: { name: string; color: string; id: number }) => {
@@ -35,19 +34,18 @@ export default class CarDao {
     return (await fetch(`${garage}/${id}`)).json();
   }
 
-  public static async createCar(body: {
-    name: string;
-    color: string;
-  }): Promise<{ name: string; color: string; id: number }> {
-    return (
-      await fetch(garage, {
-        method: 'POST',
-        body: JSON.stringify(body),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-    ).json();
+  public static async createCar(body: { name: string; color: string }): Promise<Car> {
+    const response: Response = await fetch(garage, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const serverCar: { name: string; color: string; id: number } = await response.json();
+
+    const newCar: Car = new Car(serverCar.name, serverCar.color, serverCar.id);
+    return newCar;
   }
 
   public static async deleteCar(id: number): Promise<{}> {
@@ -72,15 +70,15 @@ export default class CarDao {
     ).json();
   }
 
-  public static async startEngine(id: number) {
+  public static async startEngine(id: number): Promise<{ velocity: number; distance: number }> {
     return (await fetch(`${engine}?id=${id}&status=started`)).json();
   }
 
-  public static async stopEngine(id: number) {
+  public static async stopEngine(id: number): Promise<{ velocity: number; distance: number }> {
     return (await fetch(`${engine}?id=${id}&status=stopped`)).json();
   }
 
-  public static async drive(id: number) {
+  public static async drive(id: number): Promise<{ success: boolean }> {
     const response = await fetch(`${engine}?id=${id}&status=drive`).catch();
 
     return response.status !== 200 ? { success: false } : { ...(await response.json()) };

@@ -1,4 +1,5 @@
 import Car from '../businessLayer/car';
+import Utils from '../businessLayer/utils';
 import CarDao from '../dataAccessLayer/carDao';
 
 export default class CarService {
@@ -13,10 +14,7 @@ export default class CarService {
     return CarDao.getCar(id);
   }
 
-  public static async createCar(body: {
-    name: string;
-    color: string;
-  }): Promise<{ name: string; color: string; id: number }> {
+  public static async createCar(body: { name: string; color: string }): Promise<Car> {
     return CarDao.createCar(body);
   }
 
@@ -26,5 +24,24 @@ export default class CarService {
 
   public static async updateCar(id: number, body: { name: string; color: string }): Promise<{}> {
     return CarDao.updateCar(id, body);
+  }
+
+  public static async generateRandomCars(): Promise<Car[]> {
+    const generatedCars: { name: string; color: string }[] = Utils.generateRandomCars();
+
+    const cars = await Promise.all(generatedCars.map((el) => CarService.createCar(el)));
+    return cars;
+  }
+
+  public static async startEngine(id: number): Promise<{ velocity: number; distance: number }> {
+    return CarDao.startEngine(id);
+  }
+
+  public static async stopEngine(id: number): Promise<{ velocity: number; distance: number }> {
+    return CarDao.stopEngine(id);
+  }
+
+  public static async drive(id: number): Promise<{ success: boolean }> {
+    return CarDao.drive(id);
   }
 }

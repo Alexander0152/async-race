@@ -11,6 +11,8 @@ export default class Car {
 
   public image: HTMLDivElement;
 
+  private currentStatus: string = 'stopped';
+
   constructor(newName: string, newColor: string, newId: number) {
     this.currentName = newName;
     this.currentColor = newColor;
@@ -57,27 +59,56 @@ export default class Car {
     this.currentWinsNumber = newNumber;
   }
 
+  get status(): string {
+    return this.currentStatus;
+  }
+
+  set status(newStatus: string) {
+    this.currentStatus = newStatus;
+  }
+
   changeImageColor(newColor: string) {
     this.color = newColor;
     this.image.getElementsByTagName('g')[0].style.fill = newColor;
   }
 
-  animate() {
+  animate(newTime: number, distance: number) {
+    // const distance = 1450;
+
     const { image } = this;
     let start: number = null;
     const state: { id: number } = { id: null };
 
     function step(timestamp: number) {
+      const time = timestamp - start;
+      const passed = Math.round(time * (distance / newTime));
       if (!start) start = timestamp;
-      const progress = timestamp - start;
-      image.style.transform = `translateX(${Math.min(progress / 10, 1000)}px)`;
-      if (progress < 10000) {
+
+      image.style.transform = `translateX(${Math.min(passed, distance)}px)`;
+
+      if (passed < distance) {
         state.id = window.requestAnimationFrame(step);
       }
     }
     state.id = window.requestAnimationFrame(step);
     return state;
   }
+  // animate(time: number) {
+  //   const { image } = this;
+  //   let start: number = null;
+  //   const state: { id: number } = { id: null };
+
+  //   function step(timestamp: number) {
+  //     if (!start) start = timestamp;
+  //     const progress = timestamp - start;
+  //     image.style.transform = `translateX(${Math.min(progress / 10, 1000)}px)`;
+  //     if (progress < 10000) {
+  //       state.id = window.requestAnimationFrame(step);
+  //     }
+  //   }
+  //   state.id = window.requestAnimationFrame(step);
+  //   return state;
+  // }
 
   render(): HTMLDivElement {
     const carImage = document.createElement('div');
