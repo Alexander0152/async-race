@@ -1,5 +1,6 @@
 import Car from '../businessLayer/car';
 import CarService from '../serviceLayer/carService';
+/* eslint-disable no-param-reassign */
 /* eslint-disable import/no-cycle */
 import Race from './race';
 import Store from './Store';
@@ -32,6 +33,10 @@ export default class Garage {
 
   private btnGeneratecars: HTMLBRElement;
 
+  private btnRace: HTMLButtonElement;
+
+  private animationState: { id: number }[];
+
   constructor(private readonly root: Element, private store: Store) {
     this.application = document.createElement('div');
   }
@@ -58,7 +63,7 @@ export default class Garage {
         <button class="btn_add_user" id="btn_update_car">UPDATE</button>
       </div>
       <div class="car_input">
-        <button class="btn_add_user">RACE</button>
+        <button class="btn_add_user" id="btn_race">RACE</button>
         <button class="btn_add_user">RESET</button>
         <button class="btn_add_user" id="btn_generate_cars">GENERATE CARS</button>
       </div>
@@ -90,7 +95,9 @@ export default class Garage {
 
       this.createCarInputColor = this.application.querySelector('#create_car_color_input');
       this.updateCarInputColor = this.application.querySelector('#update_car_color_input');
+
       this.btnGeneratecars = this.application.querySelector('#btn_generate_cars');
+      this.btnRace = this.application.querySelector('#btn_race');
 
       this.addButtonListeners();
     }
@@ -99,9 +106,7 @@ export default class Garage {
 
   addButtonListeners(): void {
     this.btnToGarage.addEventListener('click', () => alert());
-    this.btnToWinners.addEventListener('click', async () =>
-      console.log(await CarService.startEngine(5).then()),
-    );
+    this.btnToWinners.addEventListener('click', async () => console.log(this.store.cars));
 
     this.btnCreateCar.addEventListener('click', () => this.createCar());
     this.btnUpdateCar.addEventListener('click', () => this.updateCar());
@@ -122,6 +127,8 @@ export default class Garage {
         this.store.updateStoreCars().then(() => this.updateView()),
       );
     });
+
+    this.btnRace.addEventListener('click', async () => this.raceAllCars());
   }
 
   async renderRacePage(): Promise<void> {
@@ -153,7 +160,7 @@ export default class Garage {
     );
   }
 
-  async createCar() {
+  async createCar(): Promise<void> {
     const newName: string = this.createCarInputName.value;
     const newColor: string = this.createCarInputColor.value;
     if (newName === '') {
@@ -162,9 +169,39 @@ export default class Garage {
     }
     this.createCarInputName.setCustomValidity('');
 
-    const newCar: Car = await CarService.createCar({ name: newName, color: newColor });
-    this.store.cars.push(newCar);
+    await CarService.createCar({ name: newName, color: newColor });
     this.store.carsCount += 1;
-    this.updateView();
+    this.store.updateStoreCars().then(() => this.updateView());
+  }
+
+  async raceAllCars(): Promise<void> {
+    const { cars } = this.store;
+    await Promise.all(
+      cars.map(
+        async (car): Promise<void> => {
+          car.isFinished = true;
+          const startEngineResp: {
+            velocity: number;
+            distance: number;
+          } = await CarService.startEngine(car.id);
+
+          const { velocity } = startEngineResp;
+          const { distance } = startEngineResp;
+          const time: number = distance / velocity;
+
+          let animateId;
+          if (time) {
+            const displayDistance: number = 1410;
+            animateId = car.animate(time, displayDistance);
+          } else return;
+
+          const driveResp: { success: boolean } = await CarService.drive(car.id);
+          if (!driveResp.success) {
+            car.isFinished = false;
+            window.cancelAnimationFrame(animateId.id);
+          }
+        },
+      ),
+    );
   }
 }

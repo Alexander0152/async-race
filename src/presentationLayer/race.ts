@@ -15,6 +15,8 @@ export default class Race {
 
   private btnB: HTMLButtonElement;
 
+  private animationId: { id: number } = { id: 0 };
+
   constructor(
     private readonly root: Element,
     private car: Car,
@@ -64,38 +66,75 @@ export default class Race {
       this.store.selectedCar = this.car;
     });
 
-    this.btnRemove.addEventListener('click', () => {
-      this.store.carsCount -= 1;
-      CarService.deleteCar(this.car.id).then(() =>
-        this.store.updateStoreCars().then(() => {
-          this.store.root.innerHTML = '';
-          this.garage.render();
-        }),
-      );
-    });
+    this.btnRemove.addEventListener('click', (): void => this.removeCar());
 
-    this.btnA.addEventListener('click', () => {
-      // const startEngineRes: {
-      //   velocity: number;
-      //   distance: number;
-      // } = await CarService.startEngine(this.car.id);
+    this.btnA.addEventListener(
+      'click',
+      async (): Promise<void> => {
+        await this.startRace();
+      },
+    );
 
-      // const { velocity } = startEngineRes;
-      // const { distance } = startEngineRes;
-      // const time: number = distance / velocity;
+    this.btnB.addEventListener(
+      'click',
+      async (): Promise<void> => {
+        await this.stopRace();
+      },
+    );
+  }
 
-      // if (time) {
-      //   this.car.status = 'started';
-      // } else return;
+  removeCar(): void {
+    this.store.carsCount -= 1;
+    CarService.deleteCar(this.car.id).then(() =>
+      this.store.updateStoreCars().then(() => {
+        this.store.root.innerHTML = '';
+        this.garage.render();
+      }),
+    );
+  }
 
-      // const driveRes: { success: boolean } = await CarService.drive(this.car.id);
+  async startRace(): Promise<void> {
+    const startEngineResp: {
+      velocity: number;
+      distance: number;
+    } = await CarService.startEngine(this.car.id);
 
-      // if (driveRes.success === true) {
-      //   this.car.status = 'drive';
-      // } else return;
+    const { velocity } = startEngineResp;
+    const { distance } = startEngineResp;
+    const time: number = distance / velocity;
 
-      this.car.animate(2000, 1450);
-      // console.log(time);
-    });
+    if (time) {
+      this.btnA.disabled = true;
+      const displayDistance: number = 1410;
+      this.animationId = this.car.animate(time, displayDistance);
+    } else return;
+
+    const driveResp: { success: boolean } = await CarService.drive(this.car.id);
+    // this.car.isFinished = this.animationId.isFinished;
+
+    if (!driveResp.success) {
+      window.cancelAnimationFrame(this.animationId.id);
+    }
+  }
+
+  async stopRace(): Promise<void> {
+    await CarService.stopEngine(this.car.id);
+    this.btnB.disabled = true;
+    this.btnA.disabled = false;
+    window.cancelAnimationFrame(this.animationId.id);
+    this.car.image.style.transform = `translateX(0)`;
+
+    // console.log(window.cancelAnimationFrame(this.animationId));
+    // let animateId: number;
+    // if (time) {
+    //   const displayDistance: number = 1400;
+    //   animateId = this.car.animate(time, displayDistance).id;
+    // } else return;
+
+    // const driveResp: { success: boolean } = await CarService.drive(this.car.id);
+
+    // if (!driveResp.success) {
+    //   window.cancelAnimationFrame(animateId);
+    // }
   }
 }

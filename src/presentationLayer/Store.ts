@@ -10,8 +10,6 @@ export default class Store {
 
   public winnersPage: number = 1;
 
-  // public color: string = 'red';
-
   public winners: { id: string; wins: string; time: number }[];
 
   public selectedCar: Car;

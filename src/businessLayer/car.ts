@@ -11,7 +11,7 @@ export default class Car {
 
   public image: HTMLDivElement;
 
-  private currentStatus: string = 'stopped';
+  public isFinished: boolean = true;
 
   constructor(newName: string, newColor: string, newId: number) {
     this.currentName = newName;
@@ -59,56 +59,37 @@ export default class Car {
     this.currentWinsNumber = newNumber;
   }
 
-  get status(): string {
-    return this.currentStatus;
-  }
-
-  set status(newStatus: string) {
-    this.currentStatus = newStatus;
-  }
-
   changeImageColor(newColor: string) {
     this.color = newColor;
     this.image.getElementsByTagName('g')[0].style.fill = newColor;
   }
 
-  animate(newTime: number, distance: number) {
-    // const distance = 1450;
-
+  animate(newTime: number, distance: number): { id: number } {
     const { image } = this;
     let start: number = null;
-    const state: { id: number } = { id: null };
+    const state: { id: number; isFinished: boolean } = { id: null, isFinished: false };
+
+    let firstIterate = true;
 
     function step(timestamp: number) {
       const time = timestamp - start;
       const passed = Math.round(time * (distance / newTime));
       if (!start) start = timestamp;
 
-      image.style.transform = `translateX(${Math.min(passed, distance)}px)`;
+      if (!firstIterate) image.style.transform = `translateX(${Math.min(passed, distance)}px)`;
 
-      if (passed < distance) {
+      if (passed < distance || firstIterate) {
+        firstIterate = false;
         state.id = window.requestAnimationFrame(step);
       }
     }
     state.id = window.requestAnimationFrame(step);
     return state;
   }
-  // animate(time: number) {
-  //   const { image } = this;
-  //   let start: number = null;
-  //   const state: { id: number } = { id: null };
 
-  //   function step(timestamp: number) {
-  //     if (!start) start = timestamp;
-  //     const progress = timestamp - start;
-  //     image.style.transform = `translateX(${Math.min(progress / 10, 1000)}px)`;
-  //     if (progress < 10000) {
-  //       state.id = window.requestAnimationFrame(step);
-  //     }
-  //   }
-  //   state.id = window.requestAnimationFrame(step);
-  //   return state;
-  // }
+  returnToStart() {
+    this.image.style.transform = `translateX(0px)`;
+  }
 
   render(): HTMLDivElement {
     const carImage = document.createElement('div');
