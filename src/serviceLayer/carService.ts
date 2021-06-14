@@ -44,4 +44,12 @@ export default class CarService {
   public static async drive(id: number): Promise<{ success: boolean }> {
     return CarDao.drive(id);
   }
+
+  public static async saveWinner(newId: number, newTime: number): Promise<void> {
+    CarDao.saveWinner(newId, newTime);
+  }
+
+  public static async getWinners(page: number, limit: number = 7, sort: string, order: string) {
+    return CarDao.getWinners(page, limit, sort, order);
+  }
 }

@@ -25,4 +25,18 @@ export default class Utils {
       .fill(1)
       .map(() => ({ name: Utils.getRandomName(), color: Utils.getRandomColor() }));
   }
+
+  static disableBtns(btn_class: string) {
+    const buttons: HTMLCollectionOf<Element> = document.getElementsByClassName(btn_class);
+    for (let i: number = 0; i < buttons.length; i += 1) {
+      (buttons[i] as HTMLButtonElement).disabled = true;
+    }
+  }
+
+  static enableBtns(btn_class: string) {
+    const buttons: HTMLCollectionOf<Element> = document.getElementsByClassName(btn_class);
+    for (let i: number = 0; i < buttons.length; i += 1) {
+      (buttons[i] as HTMLButtonElement).disabled = false;
+    }
+  }
 }

@@ -2,7 +2,7 @@ import Car from './businessLayer/car';
 import CarDao from './dataAccessLayer/carDao';
 import Garage from './presentationLayer/garage';
 import Race from './presentationLayer/race';
-import Store from './presentationLayer/Store';
+import Store from './presentationLayer/store';
 import CarService from './serviceLayer/carService';
 
 const rootNode = document.querySelector('body');

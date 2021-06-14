@@ -25,6 +25,7 @@ main {
 
 button {
   margin: 10px;
+  cursor: pointer;
 }
 
 input {
@@ -70,4 +71,72 @@ input {
   margin-right: 20%;
   /* margin-right: 150px; */
   margin-top: -40px;
+}
+/**** MODAL WINDOW *****************/
+
+.modal {
+  /* display: none; */
+  position: fixed;
+  z-index: 1;
+  padding-top: 100px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+/* Modal Content */
+.modal-content {
+  background-image: linear-gradient(315deg, #63a4ff 0%, #83eaf1 74%);
+  margin: auto;
+  padding: 10px;
+  border: 1px solid #888;
+  width: 15%;
+  /* height: 10%; */
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  border-radius: 10px;
+  color: #ffffff;
+}
+
+.modal_hint {
+  font-size: 16px;
+  font-weight: normal;
+}
+
+.modal_btn {
+  width: 135px;
+  height: 36px;
+  background-color: #f2f9fe;
+  color: #2196f3;
+  font-style: Medium;
+  font-size: 14px;
+  line-height: 16px;
+  border-radius: 5px;
+  font-weight: bold;
+  margin-right: 20px;
+}
+
+/******CUSTOM BUTTON***********/
+.flashing_btn {
+  background-color: #1c87c9;
+}
+@keyframes glowing {
+  0% {
+    background-color: rgb(199, 71, 71);
+    box-shadow: 0 0 3px rgb(199, 71, 71);
+  }
+  50% {
+    background-color: rgb(255, 0, 0);
+    box-shadow: 0 0 10px rgb(255, 0, 0);
+  }
+  100% {
+    background-color: rgb(199, 71, 71);
+    box-shadow: 0 0 3px rgb(199, 71, 71);
+  }
+}
+.flashing_btn {
+  animation: glowing 1300ms infinite;
 }

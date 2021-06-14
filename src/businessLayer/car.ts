@@ -5,13 +5,13 @@ export default class Car {
 
   private currentId: number;
 
-  private currentBestTime: number;
+  private currentTime: number;
 
   private currentWinsNumber: number = 0;
 
   public image: HTMLDivElement;
 
-  public isFinished: boolean = true;
+  public isFinished: boolean = false;
 
   constructor(newName: string, newColor: string, newId: number) {
     this.currentName = newName;
@@ -43,12 +43,12 @@ export default class Car {
     this.currentId = newId;
   }
 
-  get bestTime(): number {
-    return this.currentBestTime;
+  get time(): number {
+    return this.currentTime;
   }
 
-  set bestTime(newTime: number) {
-    this.currentBestTime = newTime;
+  set time(newTime: number) {
+    this.currentTime = newTime;
   }
 
   get winsNumber(): number {

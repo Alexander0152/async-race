@@ -2,7 +2,7 @@ import Car from '../businessLayer/car';
 import CarService from '../serviceLayer/carService';
 // eslint-disable-next-line import/no-cycle
 import Garage from './garage';
-import Store from './Store';
+import Store from './store';
 
 export default class Race {
   private readonly application: HTMLDivElement;
@@ -38,8 +38,8 @@ export default class Race {
       <p>${this.car.name}</p>
     </div>
     <div class="car-panel">
-    <button class="race-btn", id="btn-start-${this.car.id}">A</button>
-    <button class="race-btn" id="btn-stop-${this.car.id}">B</button>
+    <button class="race-btn btn_a", id="btn-start-${this.car.id}">A</button>
+    <button class="race-btn btn_b" id="btn-stop-${this.car.id}" disabled>B</button>
     <div id="car-image-${this.car.id}"></div>
     </div>
     <div class="finish"></div>
@@ -105,12 +105,12 @@ export default class Race {
 
     if (time) {
       this.btnA.disabled = true;
+      this.btnB.disabled = false;
       const displayDistance: number = 1410;
       this.animationId = this.car.animate(time, displayDistance);
     } else return;
 
     const driveResp: { success: boolean } = await CarService.drive(this.car.id);
-    // this.car.isFinished = this.animationId.isFinished;
 
     if (!driveResp.success) {
       window.cancelAnimationFrame(this.animationId.id);
@@ -123,18 +123,5 @@ export default class Race {
     this.btnA.disabled = false;
     window.cancelAnimationFrame(this.animationId.id);
     this.car.image.style.transform = `translateX(0)`;
-
-    // console.log(window.cancelAnimationFrame(this.animationId));
-    // let animateId: number;
-    // if (time) {
-    //   const displayDistance: number = 1400;
-    //   animateId = this.car.animate(time, displayDistance).id;
-    // } else return;
-
-    // const driveResp: { success: boolean } = await CarService.drive(this.car.id);
-
-    // if (!driveResp.success) {
-    //   window.cancelAnimationFrame(animateId);
-    // }
   }
 }

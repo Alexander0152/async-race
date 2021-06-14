@@ -3,8 +3,10 @@ import CarService from '../serviceLayer/carService';
 /* eslint-disable no-param-reassign */
 /* eslint-disable import/no-cycle */
 import Race from './race';
-import Store from './Store';
+import Store from './store';
 import settings from '../businessLayer/settings';
+import ModalWinner from './modalWinner';
+import Utils from '../businessLayer/utils';
 
 export default class Garage {
   private readonly application: HTMLDivElement;
@@ -35,7 +37,11 @@ export default class Garage {
 
   private btnRace: HTMLButtonElement;
 
-  private animationState: { id: number }[];
+  private btnReset: HTMLButtonElement;
+
+  private winnerInterval: number;
+
+  // private animationState: { id: number }[];
 
   constructor(private readonly root: Element, private store: Store) {
     this.application = document.createElement('div');
@@ -64,7 +70,7 @@ export default class Garage {
       </div>
       <div class="car_input">
         <button class="btn_add_user" id="btn_race">RACE</button>
-        <button class="btn_add_user">RESET</button>
+        <button class="btn_add_user" disabled id="btn_reset">RESET</button>
         <button class="btn_add_user" id="btn_generate_cars">GENERATE CARS</button>
       </div>
     </form>
@@ -98,6 +104,7 @@ export default class Garage {
 
       this.btnGeneratecars = this.application.querySelector('#btn_generate_cars');
       this.btnRace = this.application.querySelector('#btn_race');
+      this.btnReset = this.application.querySelector('#btn_reset');
 
       this.addButtonListeners();
     }
@@ -106,7 +113,9 @@ export default class Garage {
 
   addButtonListeners(): void {
     this.btnToGarage.addEventListener('click', () => alert());
-    this.btnToWinners.addEventListener('click', async () => console.log(this.store.cars));
+    this.btnToWinners.addEventListener('click', () =>
+      console.log(CarService.getWinners(1, 7, 'id', 'ASC')),
+    );
 
     this.btnCreateCar.addEventListener('click', () => this.createCar());
     this.btnUpdateCar.addEventListener('click', () => this.updateCar());
@@ -128,13 +137,30 @@ export default class Garage {
       );
     });
 
-    this.btnRace.addEventListener('click', async () => this.raceAllCars());
+    this.btnRace.addEventListener('click', async () => {
+      Utils.enableBtns('btn_b');
+      Utils.disableBtns('btn_a');
+      this.btnRace.disabled = true;
+      this.btnReset.disabled = false;
+      await this.raceAllCars();
+    });
+
+    this.btnReset.addEventListener('click', async () => {
+      Utils.disableBtns('btn_b');
+      this.btnReset.disabled = true;
+      this.btnRace.classList.add('flashing_btn');
+      await this.stopRace();
+      setTimeout(() => {
+        this.btnRace.disabled = false;
+        this.btnRace.classList.remove('flashing_btn');
+        Utils.enableBtns('btn_a');
+      }, 5000);
+    });
   }
 
   async renderRacePage(): Promise<void> {
     this.racePage = document.createElement('div');
     const { cars } = this.store;
-    // const cars: Car[] = await (await CarService.getCars(this.store.carsPage)).cars;
 
     cars.forEach((el) => new Race(this.racePage, el, this.store, this).render());
     this.root.appendChild(this.racePage);
@@ -176,10 +202,11 @@ export default class Garage {
 
   async raceAllCars(): Promise<void> {
     const { cars } = this.store;
+    this.listenToWinner();
     await Promise.all(
       cars.map(
         async (car): Promise<void> => {
-          car.isFinished = true;
+          car.isFinished = false;
           const startEngineResp: {
             velocity: number;
             distance: number;
@@ -187,7 +214,7 @@ export default class Garage {
 
           const { velocity } = startEngineResp;
           const { distance } = startEngineResp;
-          const time: number = distance / velocity;
+          const time: number = Math.round(distance / velocity);
 
           let animateId;
           if (time) {
@@ -197,11 +224,42 @@ export default class Garage {
 
           const driveResp: { success: boolean } = await CarService.drive(car.id);
           if (!driveResp.success) {
-            car.isFinished = false;
             window.cancelAnimationFrame(animateId.id);
+          } else {
+            car.isFinished = true;
+            car.time = time;
           }
         },
       ),
     );
+  }
+
+  async stopRace(): Promise<void> {
+    this.store.cars.forEach((car) => {
+      car.isFinished = false;
+    });
+
+    await clearInterval(this.winnerInterval);
+    this.store.cars.forEach(async (car) => {
+      await CarService.stopEngine(car.id);
+      let id = window.requestAnimationFrame(() => {});
+      while (id >= 0) {
+        window.cancelAnimationFrame(id);
+        id -= 1;
+      }
+      car.image.style.transform = `translateX(0)`;
+    });
+  }
+
+  listenToWinner(): void {
+    this.winnerInterval = window.setInterval(() => {
+      this.store.cars.forEach(async (car) => {
+        if (car.isFinished) {
+          new ModalWinner(this.root, car).show();
+          CarService.saveWinner(car.id, car.time);
+          await clearInterval(this.winnerInterval);
+        }
+      });
+    }, 100);
   }
 }

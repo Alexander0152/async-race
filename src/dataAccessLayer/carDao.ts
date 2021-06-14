@@ -109,11 +109,15 @@ export default class CarDao {
     return (await fetch(`${winners}/${id}`)).status;
   }
 
-  public static async deleteWinner(id: number) {
+  public static async deleteWinner(id: number): Promise<{}> {
     return (await fetch(`${winners}/${id}`, { method: 'DELETE' })).json();
   }
 
-  public static async createWinner(body: { id: number; wins: number; time: number }) {
+  public static async createWinner(body: {
+    id: number;
+    wins: number;
+    time: number;
+  }): Promise<{ id: number; wins: number; time: number }> {
     return (
       await fetch(winners, {
         method: 'POST',
@@ -125,7 +129,10 @@ export default class CarDao {
     ).json();
   }
 
-  public static async updateWinner(id: number, body: { id: number; wins: number; time: number }) {
+  public static async updateWinner(
+    id: number,
+    body: { id: number; wins: number; time: number },
+  ): Promise<{ wins: number; time: number; id: number } | {}> {
     return (
       await fetch(`${winners}/${id}`, {
         method: 'PUT',
@@ -137,7 +144,7 @@ export default class CarDao {
     ).json();
   }
 
-  public static async saveWinner(newId: number, newTime: number) {
+  public static async saveWinner(newId: number, newTime: number): Promise<void> {
     const winnerStatus = await this.getWinnerStatus(newId);
 
     if (winnerStatus === 404) {
