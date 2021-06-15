@@ -140,3 +140,29 @@ input {
 .flashing_btn {
   animation: glowing 1300ms infinite;
 }
+
+/******WINNERS******************/
+
+.winners_container {
+  margin: 0 auto;
+  display: block;
+  text-align: center;
+  /* background-color: #2196f3; */
+
+  width: 700px;
+  height: 400px;
+}
+
+table {
+  margin: 0 auto;
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  border: 1px solid #616161;
+  text-align: left;
+  padding: 8px;
+}

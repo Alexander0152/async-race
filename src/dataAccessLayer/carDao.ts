@@ -1,4 +1,5 @@
 import Car from '../businessLayer/car';
+import Winner from '../businessLayer/winner';
 
 const base = 'http://localhost:3000';
 
@@ -14,7 +15,7 @@ export default class CarDao {
   public static async getCars(
     page: number,
     limit: number = 7,
-  ): Promise<{ cars: Car[]; count: string }> {
+  ): Promise<{ cars: Car[]; count: number }> {
     const response: Response = await fetch(`${garage}?_page=${page}&_limit=${limit}`);
     const serverCars: { name: string; color: string; id: number }[] = await response.json();
     const cars: Car[] = [];
@@ -26,7 +27,7 @@ export default class CarDao {
 
     return {
       cars,
-      count: response.headers.get('X-Total-Count'),
+      count: +response.headers.get('X-Total-Count'),
     };
   }
 
@@ -84,21 +85,46 @@ export default class CarDao {
     return response.status !== 200 ? { success: false } : { ...(await response.json()) };
   }
 
-  public static async getWinners(page: number, limit: number = 7, sort: string, order: string) {
-    const response = await fetch(
+  public static async getWinners(
+    page: number,
+    limit: number = 10,
+    sort: string,
+    order: string,
+  ): Promise<{ winners: Winner[]; count: number }> {
+    const response: Response = await fetch(
       `${winners}?_page=${page}&_limit=${limit}${getSortOrder(sort, order)}`,
     );
-    const items = await response.json();
+    const items: { id: number; wins: number; time: number }[] = await response.json();
 
-    return {
-      items: await Promise.all(
-        items.map(async (winner: { id: number; wins: number; time: number }) => ({
-          ...winner,
-          car: await CarDao.getCar(winner.id),
-        })),
-      ),
-      count: response.headers.get('X-Total-Count'),
-    };
+    const result: { winners: Winner[]; count: number } = { winners: [], count: null };
+
+    items.forEach(async (el) => {
+      const newCarObj: { name: string; color: string; id: number } = await CarDao.getCar(el.id);
+      const newCar: Car = new Car(newCarObj.name, newCarObj.color, newCarObj.id);
+
+      const newWinner: Winner = new Winner(el.id, el.wins, el.time, newCar);
+      result.winners.push(newWinner);
+    });
+    result.count = +response.headers.get('X-Total-Count');
+
+    return result;
+
+    // return {
+    //   items: await Promise.all(
+    //     items.map(async (winner: { id: number; wins: number; time: number }) => (
+    //       {
+    //       ...winner,
+    //       car: await CarDao.getCar(winner.id),
+    //     })),
+    //   ),
+    //   count: response.headers.get('X-Total-Count'),
+    // };
+
+    // const cars: Car[] = [];
+    // responseValue.items.forEach((el: { name: string; color: string; id: number }) => {
+    //   const newCar: Car = new Car(el.name, el.color, el.id);
+    //   cars.push(newCar);
+    // });
   }
 
   public static async getWinner(id: number) {

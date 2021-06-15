@@ -54,6 +54,7 @@ export default class Garage {
     <button  ${
       this.store.view === 'winners' ? 'disabled' : ''
     } id="btn_to_winners">TO WINNERS</button>
+    <div class="content" id="content">
     <form id="create_car_form" class="car_form" onsubmit="return false">
       <p class="title">Car</p>
       <div class="form-field">
@@ -81,6 +82,7 @@ export default class Garage {
     <button ${
       this.store.carsPage === Math.ceil(this.store.carsCount / 7) ? 'disabled' : ''
     } id="btn_next">NEXT</button>
+    </div>
   </main>`;
 
     if (this.root) {
@@ -113,9 +115,20 @@ export default class Garage {
 
   addButtonListeners(): void {
     this.btnToGarage.addEventListener('click', () => alert());
-    this.btnToWinners.addEventListener('click', () =>
-      console.log(CarService.getWinners(1, 7, 'id', 'ASC')),
-    );
+    this.btnToWinners.addEventListener('click', async () => {
+      this.store.winners.forEach((element) => {
+        console.log(element);
+      });
+      // console.log(await (await CarService.getWinners(1, 10, 'id', 'DESC')).winners);
+      // const form: HTMLFormElement = document.querySelector('#content');
+      // if (form.style.display === 'none') {
+      //   form.style.display = 'initial';
+      //   this.racePage.style.display = 'initial';
+      // } else {
+      //   form.style.display = 'none';
+      //   this.racePage.style.display = 'none';
+      // }
+    });
 
     this.btnCreateCar.addEventListener('click', () => this.createCar());
     this.btnUpdateCar.addEventListener('click', () => this.updateCar());
@@ -227,7 +240,7 @@ export default class Garage {
             window.cancelAnimationFrame(animateId.id);
           } else {
             car.isFinished = true;
-            car.time = time;
+            car.time = time / 1000;
           }
         },
       ),

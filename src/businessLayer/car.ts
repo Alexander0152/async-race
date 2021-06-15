@@ -7,8 +7,6 @@ export default class Car {
 
   private currentTime: number;
 
-  private currentWinsNumber: number = 0;
-
   public image: HTMLDivElement;
 
   public isFinished: boolean = false;
@@ -49,14 +47,6 @@ export default class Car {
 
   set time(newTime: number) {
     this.currentTime = newTime;
-  }
-
-  get winsNumber(): number {
-    return this.currentWinsNumber;
-  }
-
-  set winsNumber(newNumber: number) {
-    this.currentWinsNumber = newNumber;
   }
 
   changeImageColor(newColor: string) {

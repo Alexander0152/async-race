@@ -1,12 +1,13 @@
 import Car from '../businessLayer/car';
 import Utils from '../businessLayer/utils';
+import Winner from '../businessLayer/winner';
 import CarDao from '../dataAccessLayer/carDao';
 
 export default class CarService {
   public static async getCars(
     page: number,
     limit: number = 7,
-  ): Promise<{ cars: Car[]; count: string }> {
+  ): Promise<{ cars: Car[]; count: number }> {
     return CarDao.getCars(page, limit);
   }
 
@@ -49,7 +50,12 @@ export default class CarService {
     CarDao.saveWinner(newId, newTime);
   }
 
-  public static async getWinners(page: number, limit: number = 7, sort: string, order: string) {
+  public static async getWinners(
+    page: number,
+    limit: number = 10,
+    sort: string,
+    order: string,
+  ): Promise<{ winners: Winner[]; count: number }> {
     return CarDao.getWinners(page, limit, sort, order);
   }
 }

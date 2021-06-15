@@ -12,7 +12,7 @@ export default class ModalWinner {
              <div class="modal-content">
                <p>Winner!</p>
                <p>Car name: ${car.name}</p>
-               <p>Time: ${car.time / 1000} sec</p>
+               <p>Time: ${car.time} sec</p>
                <button class="modal_btn" id="close_modal_winner_btn">Close</button>
              </div>
          </div>`;

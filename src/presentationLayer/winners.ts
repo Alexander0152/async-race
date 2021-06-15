@@ -1,4 +1,6 @@
+import { thru } from 'lodash';
 import Car from '../businessLayer/car';
+import Winner from '../businessLayer/winner';
 import CarService from '../serviceLayer/carService';
 import Garage from './garage';
 import Store from './store';
@@ -11,20 +13,43 @@ export default class Winners {
   }
 
   render(): HTMLElement {
-    this.application.innerHTML = `<div class="race">
-    <div class="car-panel">
-      <button class="btn_add_user" id="select-car-${this.car.id}">SELECT</button>  
-      <button class="btn_add_user" id="remove-car-${this.car.id}">REMOVE</button>
-      <p>${this.car.name}</p>
-    </div>
-    <div class="car-panel">
-    <button class="race-btn btn_a", id="btn-start-${this.car.id}">A</button>
-    <button class="race-btn btn_b" id="btn-stop-${this.car.id}" disabled>B</button>
-    <div id="car-image-${this.car.id}"></div>
-    </div>
-    <div class="finish"></div>
-    </div>`;
-
+    this.application.innerHTML = `<div class="winners_container">
+    <h1 class="title">Winners</h1>
+    <p class="title">Page #${this.store.winnersPage}</p>
+    <table>
+      <tr>
+        <th>Number</th>
+        <th>Car</th>
+        <th>Name</th>
+        <th>Wins</th>
+        <th>Best time(sec)</th>
+      </tr>
+      ${this.renderRecords()}
+    </table>
+  </div>`;
+    if (this.root) {
+      this.root.appendChild(this.application);
+    }
     return this.application;
+  }
+
+  renderRecords() {
+    const records: Element = document.createElement('tr');
+    let number = 1;
+    this.store.winners.forEach((winner) => {
+      const newRecord: Element = document.createElement('tr');
+      newRecord.innerHTML = `<tr>
+    <td>${number}</td>
+    <td>${winner.car.image}</td>
+    <td>${winner.car.name}</td>
+    <td>${winner.wins}</td>
+    <td>${winner.time}</td>
+  </tr>`;
+      records.appendChild(newRecord);
+      number += 1;
+    });
+    console.log(records.textContent);
+
+    return records.innerHTML;
   }
 }
