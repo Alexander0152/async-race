@@ -11,11 +11,9 @@ export default class Car {
 
   public isFinished: boolean = false;
 
-  constructor(newName: string, newColor: string, newId: number) {
-    this.currentName = newName;
-    this.currentColor = newColor;
-    this.currentId = newId;
-  }
+  public isStopped: boolean = false;
+
+  public animationId: { id: number } = { id: 0 };
 
   get color(): string {
     return this.currentColor;
@@ -23,6 +21,12 @@ export default class Car {
 
   set color(newColor: string) {
     this.currentColor = newColor;
+  }
+
+  constructor(newName: string, newColor: string, newId: number) {
+    this.currentName = newName;
+    this.currentColor = newColor;
+    this.currentId = newId;
   }
 
   get name(): string {

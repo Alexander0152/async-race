@@ -135,8 +135,8 @@ export default class CarDao {
     return (await fetch(`${winners}/${id}`)).status;
   }
 
-  public static async deleteWinner(id: number): Promise<{}> {
-    return (await fetch(`${winners}/${id}`, { method: 'DELETE' })).json();
+  public static async deleteWinner(id: number): Promise<void> {
+    (await fetch(`${winners}/${id}`, { method: 'DELETE' })).json();
   }
 
   public static async createWinner(body: {

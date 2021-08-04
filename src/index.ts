@@ -1,17 +1,21 @@
 import Garage from './presentationLayer/garage';
 import Store from './presentationLayer/store';
-import Winners from './presentationLayer/winners';
 
 const rootNode = document.querySelector('body');
 const store = new Store();
+const finishIndent: number = 285;
 
 store.initialize().then(() => {
   store.root = rootNode;
   const garage = new Garage(rootNode, store);
-  garage.render();
-  const winners = new Winners(rootNode, store);
-  winners.renderRecords();
   setTimeout(() => {
-    winners.render();
+    garage.render();
+    const width = window.innerWidth;
+    store.distance = width - finishIndent;
   }, 500);
+});
+
+window.addEventListener('resize', () => {
+  const width = window.innerWidth;
+  store.distance = width - finishIndent;
 });

@@ -58,4 +58,8 @@ export default class CarService {
   ): Promise<{ winners: Winner[]; count: number }> {
     return CarDao.getWinners(page, limit, sort, order);
   }
+
+  public static async deleteWinner(id: number): Promise<void> {
+    CarDao.deleteWinner(id);
+  }
 }

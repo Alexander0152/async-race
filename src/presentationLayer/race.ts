@@ -15,8 +15,6 @@ export default class Race {
 
   private btnB: HTMLButtonElement;
 
-  private animationId: { id: number } = { id: 0 };
-
   constructor(
     private readonly root: Element,
     private car: Car,
@@ -33,14 +31,14 @@ export default class Race {
   render(): HTMLElement {
     this.application.innerHTML = `<div class="race">
     <div class="car-panel">
-      <button class="btn_add_user" id="select-car-${this.car.id}">SELECT</button>  
-      <button class="btn_add_user" id="remove-car-${this.car.id}">REMOVE</button>
+      <button class="btn_add_user btn_select" id="select-car-${this.car.id}">SELECT</button>  
+      <button class="btn_add_user btn_remove" id="remove-car-${this.car.id}">REMOVE</button>
       <p>${this.car.name}</p>
     </div>
     <div class="car-panel">
     <button class="race-btn btn_a", id="btn-start-${this.car.id}">A</button>
     <button class="race-btn btn_b" id="btn-stop-${this.car.id}" disabled>B</button>
-    <div id="car-image-${this.car.id}"></div>
+    <div id="car-image-${this.car.id}" class="car_image"></div>
     </div>
     <div class="finish"></div>
     </div>`;
@@ -85,12 +83,14 @@ export default class Race {
 
   removeCar(): void {
     this.store.carsCount -= 1;
+    this.store.winnersCount -= 1;
     CarService.deleteCar(this.car.id).then(() =>
       this.store.updateStoreCars().then(() => {
         this.store.root.innerHTML = '';
         this.garage.render();
       }),
     );
+    CarService.deleteWinner(this.car.id);
   }
 
   async startRace(): Promise<void> {
@@ -106,14 +106,16 @@ export default class Race {
     if (time) {
       this.btnA.disabled = true;
       this.btnB.disabled = false;
-      const displayDistance: number = 1410;
-      this.animationId = this.car.animate(time, displayDistance);
+      this.btnSelect.disabled = true;
+      this.btnRemove.disabled = true;
+
+      this.car.animationId = this.car.animate(time, this.store.distance);
     } else return;
 
     const driveResp: { success: boolean } = await CarService.drive(this.car.id);
 
     if (!driveResp.success) {
-      window.cancelAnimationFrame(this.animationId.id);
+      window.cancelAnimationFrame(this.car.animationId.id);
     }
   }
 
@@ -121,7 +123,22 @@ export default class Race {
     await CarService.stopEngine(this.car.id);
     this.btnB.disabled = true;
     this.btnA.disabled = false;
-    window.cancelAnimationFrame(this.animationId.id);
+    this.btnSelect.disabled = false;
+    this.btnRemove.disabled = false;
+
+    window.cancelAnimationFrame(this.car.animationId.id);
+    this.car.isStopped = true;
     this.car.image.style.transform = `translateX(0)`;
+    this.checkAllCarsIsStopped();
+  }
+
+  checkAllCarsIsStopped(): void {
+    for (let i = 0; i < this.store.cars.length; i += 1) {
+      if (!this.store.cars[i].isStopped) {
+        return;
+      }
+    }
+    this.garage.btnRace.disabled = false;
+    this.garage.btnReset.disabled = true;
   }
 }

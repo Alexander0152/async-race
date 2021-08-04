@@ -1,6 +1,7 @@
 import Car from '../businessLayer/car';
 import Winner from '../businessLayer/winner';
 import CarService from '../serviceLayer/carService';
+import settings from '../businessLayer/settings';
 
 export default class Store {
   public carsPage: number = 1;
@@ -21,9 +22,11 @@ export default class Store {
 
   public view: string = 'garage';
 
-  public sortBy: string = 'id';
+  public sortBy: string = 'time';
 
-  public sortOrder: string = 'DESC';
+  public sortOrder: string = 'ASC';
+
+  public distance: number = settings.defaultDistance;
 
   async initialize() {
     const carsResp: {
@@ -34,25 +37,33 @@ export default class Store {
     this.cars = carsResp.cars;
     this.carsCount = carsResp.count;
 
-    const winnersResp = await CarService.getWinners(1, 10, 'time', 'DESC');
+    const winnersResp = await CarService.getWinners(
+      1,
+      settings.limitWinnersOnPage,
+      this.sortBy,
+      this.sortOrder,
+    );
 
     this.winnersCount = winnersResp.count;
     this.winners = winnersResp.winners;
   }
 
   async updateStoreCars(): Promise<void> {
-    const currentPageCars: Car[] = (await CarService.getCars(this.carsPage)).cars;
+    const currentPageCars: Car[] = (
+      await CarService.getCars(this.carsPage, settings.limitCarsOnPage)
+    ).cars;
     this.cars = currentPageCars;
   }
 
   async updateStoreWinners(): Promise<void> {
-    const { winners } = await CarService.getWinners(
+    const resp = await CarService.getWinners(
       this.winnersPage,
-      10,
+      settings.limitWinnersOnPage,
       this.sortBy,
       this.sortOrder,
     );
 
-    this.winners = winners;
+    this.winners = resp.winners;
+    this.winnersCount = resp.count;
   }
 }

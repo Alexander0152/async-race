@@ -1,6 +1,8 @@
 export default {
   limitCarsOnPage: 7,
+  limitWinnersOnPage: 10,
   generateCarsNumber: 100,
+  defaultDistance: 1410,
   carNames: [
     'Tesla',
     'Mersedes',
